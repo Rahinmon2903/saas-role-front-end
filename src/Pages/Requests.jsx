@@ -23,16 +23,37 @@ const Requests = () => {
       }
 
       setRequests(res.data);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load requests");
     } finally {
       setLoading(false);
     }
   };
 
   const updateStatus = async (id, status) => {
-    await api.put(`/requests/${id}`, { status });
-    fetchRequests();
+    let remark = "";
+
+    if (status === "rejected") {
+      remark = prompt("Enter remark (required for rejection):");
+      if (!remark || !remark.trim()) {
+        alert("Remark is required to reject a request");
+        return;
+      }
+    } else {
+      remark = prompt("Enter remark (optional):") || "";
+    }
+
+    try {
+      await api.put(`/requests/${id}`, {
+        status,
+        remark,
+      });
+      fetchRequests();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update request status");
+    }
   };
 
   if (loading) return <p>Loading...</p>;
@@ -41,42 +62,59 @@ const Requests = () => {
     <div>
       <h2 className="text-xl font-semibold mb-4">Requests</h2>
 
-      <table className="w-full border">
-        <thead>
-          <tr className="bg-gray-100">
-            <th>Title</th>
-            <th>Status</th>
-            <th>Created By</th>
-            {role === "manager" && <th>Action</th>}
-          </tr>
-        </thead>
-
-        <tbody>
-          {requests.map((r) => (
-            <tr key={r._id} className="border-t">
-              <td>{r.title}</td>
-              <td>{r.status}</td>
-              <td>{r.createdBy?.name || "You"}</td>
-
+      {requests.length === 0 ? (
+        <p className="text-gray-500">No requests found</p>
+      ) : (
+        <table className="w-full border">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="p-2 border">Title</th>
+              <th className="p-2 border">Status</th>
+              <th className="p-2 border">Created By</th>
+              <th className="p-2 border">Remark</th>
               {role === "manager" && (
-                <td>
-                  <button
-                    onClick={() => updateStatus(r._id, "approved")}
-                  >
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => updateStatus(r._id, "rejected")}
-                    className="ml-2"
-                  >
-                    Reject
-                  </button>
-                </td>
+                <th className="p-2 border">Action</th>
               )}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {requests.map((r) => (
+              <tr key={r._id} className="border-t">
+                <td className="p-2 border">{r.title}</td>
+                <td className="p-2 border">{r.status}</td>
+                <td className="p-2 border">
+                  {r.createdBy?.name || "You"}
+                </td>
+                <td className="p-2 border">
+                  {r.remark || "-"}
+                </td>
+
+                {role === "manager" && (
+                  <td className="p-2 border">
+                    <button
+                      className="px-2 py-1 bg-green-500 text-white mr-2"
+                      onClick={() =>
+                        updateStatus(r._id, "approved")
+                      }
+                    >
+                      Approve
+                    </button>
+                    <button
+                      className="px-2 py-1 bg-red-500 text-white"
+                      onClick={() =>
+                        updateStatus(r._id, "rejected")
+                      }
+                    >
+                      Reject
+                    </button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
