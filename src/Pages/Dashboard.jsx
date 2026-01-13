@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   const auth = JSON.parse(localStorage.getItem("auth"));
@@ -15,8 +16,17 @@ const Dashboard = () => {
   }, [role]);
 
   const fetchAdminStats = async () => {
-    const res = await api.get("/admin/stats");
+    try {
+      const res = await api.get("/admin/stats");
     setStats(res.data);
+    toast.success("Stats fetched successfully");
+      
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch stats");
+      
+    }
+    
   };
 
   return (

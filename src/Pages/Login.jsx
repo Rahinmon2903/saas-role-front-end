@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -18,6 +19,7 @@ const Login = () => {
     try {
       const res = await api.post("/auth/login", { email, password });
       localStorage.setItem("auth", JSON.stringify(res.data));
+      toast.success("Login successful");
       navigate("/dashboard");
     } catch (err) {
       setError(

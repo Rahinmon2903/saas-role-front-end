@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { toast } from "react-toastify";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -9,13 +10,31 @@ const AdminUsers = () => {
   }, []);
 
   const fetchUsers = async () => {
-    const res = await api.get("/admin/users");
+    try {
+       const res = await api.get("/admin/users");
     setUsers(res.data);
+    toast.success("Users fetched successfully");
+      
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch users");
+      
+    }
+   
   };
 
   const changeRole = async (id, role) => {
-    await api.put(`/admin/users/${id}/role`, { role });
+    try {
+        await api.put(`/admin/users/${id}/role`, { role });
+    toast.success("Role changed successfully");
     fetchUsers();
+      
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to change role");
+      
+    }
+  
   };
 
   return (

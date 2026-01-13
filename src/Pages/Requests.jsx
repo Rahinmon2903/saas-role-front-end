@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { toast } from "react-toastify";
 
 const Requests = () => {
   const auth = JSON.parse(localStorage.getItem("auth"));
@@ -49,10 +50,11 @@ const Requests = () => {
         status,
         remark,
       });
+      toast.success("Request updated successfully");
       fetchRequests();
     } catch (error) {
       console.error(error);
-      alert("Failed to update request status");
+      toast.error("Failed to update request status");
     }
   };
 
