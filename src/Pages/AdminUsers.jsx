@@ -13,7 +13,7 @@ const AdminUsers = () => {
     try {
        const res = await api.get("/admin/users");
     setUsers(res.data);
-    toast.success("Users fetched successfully");
+    
       
     } catch (error) {
       console.error(error);

@@ -1,21 +1,56 @@
-import React from 'react';
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   const auth = JSON.parse(localStorage.getItem("auth"));
   const role = auth?.user?.role;
+  const location = useLocation();
+
+  const navItem = (to, label) => {
+    const active = location.pathname === to;
+
+    return (
+      <Link
+        to={to}
+        className={`block px-4 py-2 rounded-lg text-sm font-medium transition
+          ${
+            active
+              ? "bg-gray-900 text-white shadow-sm"
+              : "text-gray-700 hover:bg-gray-200"
+          }`}
+      >
+        {label}
+      </Link>
+    );
+  };
 
   return (
-    <div className="w-60 bg-gray-100 h-full p-4">
-      <ul className="space-y-3">
-        <li><Link to="/">Dashboard</Link></li>
-        <li><Link to="/requests">Requests</Link></li>
+    <aside className="w-64 min-h-screen bg-white border-r px-4 py-6">
+      {/* Brand */}
+      <div className="mb-10 px-2">
+        <h2 className="text-lg font-semibold text-gray-900">
+          RBAC System
+        </h2>
+        <p className="text-xs text-gray-500">
+          Internal dashboard
+        </p>
+      </div>
+
+      {/* Navigation */}
+      <nav className="space-y-2">
+        {navItem("/dashboard", "Dashboard")}
+        {navItem("/requests", "Requests")}
 
         {role === "admin" && (
-          <li><Link to="/admin/users">Users</Link></li>
+          <>
+            <div className="pt-4 pb-1 px-2 text-xs uppercase tracking-wide text-gray-400">
+              Admin
+            </div>
+            {navItem("/admin/users", "User Management")}
+          </>
         )}
-      </ul>
-    </div>
+      </nav>
+    </aside>
   );
 };
 
