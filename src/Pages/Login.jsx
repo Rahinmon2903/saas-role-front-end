@@ -18,7 +18,7 @@ const Login = () => {
     try {
       const res = await api.post("/auth/login", { email, password });
       localStorage.setItem("auth", JSON.stringify(res.data));
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       setError(
         err.response?.data?.message || "Invalid email or password"
@@ -113,7 +113,7 @@ const Login = () => {
           <p className="text-sm text-gray-500 mt-6">
             Need access?{" "}
             <Link
-              to="/register"
+              to="/"
               className="text-gray-900 underline"
             >
               Request an account
