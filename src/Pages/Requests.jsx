@@ -7,15 +7,19 @@ const Requests = () => {
   const role = auth.user.role;
 
   const [requests, setRequests] = useState([]);
+  const [managers, setManagers] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // User create
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Manager action
   const [remark, setRemark] = useState("");
   const [activeRequest, setActiveRequest] = useState(null);
-  const [managers, setManagers] = useState([]);
+
+  /* ===================== EFFECTS ===================== */
 
   useEffect(() => {
     fetchRequests();
@@ -25,16 +29,9 @@ const Requests = () => {
     if (role === "admin") {
       fetchManagers();
     }
-  }, []);
+  }, [role]);
 
-  const fetchManagers = async () => {
-    try {
-      const res = await api.get("/admin/users");
-      setManagers(res.data.filter((user) => user.role == "manager"));
-    } catch (error) {
-      toast.error("Failed to fetch managers");
-    }
-  };
+  /* ===================== FETCH ===================== */
 
   const fetchRequests = async () => {
     try {
@@ -54,12 +51,21 @@ const Requests = () => {
     }
   };
 
+  // ✅ NEW: workload-aware managers fetch
+  const fetchManagers = async () => {
+    try {
+      const res = await api.get("/admin/managers/workload");
+      setManagers(res.data);
+    } catch {
+      toast.error("Failed to load manager workload");
+    }
+  };
+
+  /* ===================== USER ===================== */
+
   const createRequest = async (e) => {
     e.preventDefault();
-    if (!title.trim()) {
-      toast.error("Title is required");
-      return;
-    }
+    if (!title.trim()) return toast.error("Title is required");
 
     try {
       setSubmitting(true);
@@ -75,10 +81,26 @@ const Requests = () => {
     }
   };
 
+  /* ===================== ADMIN ===================== */
+
+  const assignRequest = async (requestId, managerId) => {
+    if (!managerId) return;
+
+    try {
+      await api.put(`/requests/${requestId}/assign`, { managerId });
+      toast.success("Request assigned");
+      fetchRequests();
+      fetchManagers(); // refresh workload
+    } catch {
+      toast.error("Failed to assign request");
+    }
+  };
+
+  /* ===================== MANAGER ===================== */
+
   const updateStatus = async (id, status) => {
     if (status === "rejected" && !remark.trim()) {
-      toast.error("Remark is required");
-      return;
+      return toast.error("Remark is required");
     }
 
     try {
@@ -96,49 +118,43 @@ const Requests = () => {
     return <p className="p-8 text-gray-500">Loading requests…</p>;
   }
 
+  /* ===================== UI ===================== */
+
   return (
     <div className="p-8 w-full bg-gray-50 min-h-screen space-y-10">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-semibold text-gray-900">Requests</h1>
         <p className="text-sm text-gray-500 mt-1">
-          {role === "user"
-            ? "Create and track your submitted requests"
-            : "Review and act on assigned requests"}
+          {role === "admin"
+            ? "View and assign all requests"
+            : role === "manager"
+            ? "Review assigned requests"
+            : "Create and track your requests"}
         </p>
       </div>
 
-      {/* USER: Create Request */}
+      {/* USER CREATE */}
       {role === "user" && (
         <div className="bg-white border rounded-xl p-6 max-w-xl shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            New request
-          </h3>
-
+          <h3 className="text-lg font-semibold mb-4">New request</h3>
           <form onSubmit={createRequest} className="space-y-4">
             <input
-              type="text"
-              placeholder="Request title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full border rounded-md px-3 py-2
-                         focus:outline-none focus:ring-2 focus:ring-gray-900"
+              placeholder="Request title"
+              className="w-full border rounded-md px-3 py-2"
             />
-
             <textarea
-              placeholder="Description (optional)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full border rounded-md px-3 py-2
-                         focus:outline-none focus:ring-2 focus:ring-gray-900"
+              placeholder="Description"
               rows={3}
+              className="w-full border rounded-md px-3 py-2"
             />
-
             <button
-              type="submit"
               disabled={submitting}
-              className="bg-gray-900 text-white px-5 py-2.5 rounded-md
-                         font-medium hover:bg-gray-800 disabled:opacity-60"
+              className="bg-gray-900 text-white px-5 py-2 rounded-md"
             >
               {submitting ? "Submitting…" : "Submit request"}
             </button>
@@ -146,78 +162,145 @@ const Requests = () => {
         </div>
       )}
 
-      {/* Requests List */}
+      {/* TABLE */}
       {requests.length === 0 ? (
         <div className="bg-white border rounded-xl p-8 text-center text-gray-500">
           No requests found
         </div>
       ) : (
-        <div className="bg-white border rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-white border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-100 text-gray-600">
               <tr>
                 <th className="p-4 text-left">Title</th>
                 <th className="p-4 text-left">Status</th>
                 <th className="p-4 text-left">Created by</th>
-                <th className="p-4 text-left">Remark</th>
-                {role === "manager" && (
-                  <th className="p-4 text-left">Action</th>
-                )}
+                <th className="p-4 text-left">Assigned to</th>
+                <th className="p-4 text-left">Details</th>
+                {role === "manager" && <th className="p-4">Action</th>}
               </tr>
             </thead>
 
             <tbody>
               {requests.map((r) => (
-                <tr
-                  key={r._id}
-                  className="border-t hover:bg-gray-50 transition"
-                >
-                  <td className="p-4 font-medium text-gray-900">{r.title}</td>
+                <tr key={r._id} className="border-t align-top">
+                  <td className="p-4 font-medium">{r.title}</td>
 
                   <td className="p-4">
                     <StatusBadge status={r.status} />
                   </td>
 
-                  <td className="p-4 text-gray-700">
-                    {r.createdBy?.name || "You"}
+                  <td className="p-4">{r.createdBy?.name || "You"}</td>
+
+                  {/* ADMIN ASSIGN WITH WORKLOAD */}
+                  <td className="p-4">
+                    {role === "admin" ? (
+                      <select
+                        value={r.assignedTo?._id || ""}
+                        disabled={r.status !== "pending"}
+                        onChange={(e) =>
+                          assignRequest(r._id, e.target.value)
+                        }
+                        className="border rounded px-2 py-1 text-sm w-full"
+                      >
+                        <option value="">Unassigned</option>
+
+                        {managers.map((m) => (
+                          <option
+                            key={m._id}
+                            value={m._id}
+                            className={
+                              m.pendingCount >= 5
+                                ? "text-red-600"
+                                : m.pendingCount >= 3
+                                ? "text-yellow-600"
+                                : ""
+                            }
+                          >
+                            {m.name} ({m.pendingCount} pending)
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      r.assignedTo?.name || "—"
+                    )}
                   </td>
 
-                  <td className="p-4 text-gray-600">{r.remark || "—"}</td>
+                  {/* DETAILS + HISTORY */}
+                  <td className="p-4 text-gray-600">
+                    <div>{r.remark || "—"}</div>
 
+                    {r.history?.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {r.history.map((h, i) => (
+                          <div
+                            key={i}
+                            className="text-xs text-gray-500"
+                          >
+                            <span className="font-medium">
+                              {h.action.toUpperCase()}
+                            </span>{" "}
+                            by {h.by?.name || "System"}
+                            {h.remark && ` — ${h.remark}`}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+
+                  {/* MANAGER ACTION */}
                   {role === "manager" && (
                     <td className="p-4 space-y-2">
-                      {activeRequest === r._id && (
-                        <textarea
-                          value={remark}
-                          onChange={(e) => setRemark(e.target.value)}
-                          placeholder="Add remark"
-                          className="w-full border rounded-md px-2 py-1"
-                        />
-                      )}
-
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            setActiveRequest(r._id);
-                            updateStatus(r._id, "approved");
-                          }}
-                          className="px-3 py-1.5 bg-green-600 text-white rounded-md text-xs
-                                     hover:bg-green-700"
-                        >
-                          Approve
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setActiveRequest(r._id);
-                            updateStatus(r._id, "rejected");
-                          }}
-                          className="px-3 py-1.5 bg-red-600 text-white rounded-md text-xs
-                                     hover:bg-red-700"
-                        >
-                          Reject
-                        </button>
-                      </div>
+                      {r.status === "pending" &&
+                        (activeRequest === r._id ? (
+                          <>
+                            <textarea
+                              value={remark}
+                              onChange={(e) =>
+                                setRemark(e.target.value)
+                              }
+                              placeholder="Add remark"
+                              className="w-full border rounded px-2 py-1"
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() =>
+                                  updateStatus(r._id, "approved")
+                                }
+                                className="bg-green-600 text-white px-3 py-1 rounded text-xs"
+                              >
+                                Confirm Approve
+                              </button>
+                              <button
+                                onClick={() =>
+                                  updateStatus(r._id, "rejected")
+                                }
+                                className="bg-red-600 text-white px-3 py-1 rounded text-xs"
+                              >
+                                Confirm Reject
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() =>
+                                setActiveRequest(r._id)
+                              }
+                              className="bg-green-600 text-white px-3 py-1 rounded text-xs"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() =>
+                                setActiveRequest(r._id)
+                              }
+                              className="bg-red-600 text-white px-3 py-1 rounded text-xs"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ))}
                     </td>
                   )}
                 </tr>
@@ -236,15 +319,13 @@ const StatusBadge = ({ status }) => {
     approved: "bg-green-100 text-green-800",
     rejected: "bg-red-100 text-red-800",
   };
-
   return (
-    <span
-      className={`inline-flex items-center px-3 py-1 rounded-full
-                  text-xs font-medium ${styles[status]}`}
-    >
+    <span className={`px-3 py-1 rounded-full text-xs ${styles[status]}`}>
       {status}
     </span>
   );
 };
 
 export default Requests;
+
+
