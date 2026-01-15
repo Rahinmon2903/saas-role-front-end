@@ -10,41 +10,35 @@ const Requests = () => {
   const [managers, setManagers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // User create
+  // user create
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Manager action
+  // manager action
   const [remark, setRemark] = useState("");
   const [activeRequest, setActiveRequest] = useState(null);
 
-  // 🔍 Audit history modal
+  // history modal
   const [showHistory, setShowHistory] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState(null);
-
-  /* ===================== EFFECTS ===================== */
+  const [historyRequest, setHistoryRequest] = useState(null);
 
   useEffect(() => {
     fetchRequests();
+    if (role === "admin") fetchManagers();
   }, []);
 
-  useEffect(() => {
-    if (role === "admin") fetchManagers();
-  }, [role]);
-
-  /* ===================== FETCH ===================== */
+  /*  FETCH  */
 
   const fetchRequests = async () => {
     try {
-      let res;
-      if (role === "admin") {
-        res = await api.get("/requests/all");
-      } else if (role === "manager") {
-        res = await api.get("/requests/assigned");
-      } else {
-        res = await api.get("/requests");
-      }
+      const res =
+        role === "admin"
+          ? await api.get("/requests/all")
+          : role === "manager"
+          ? await api.get("/requests/assigned")
+          : await api.get("/requests");
+
       setRequests(res.data);
     } catch {
       toast.error("Failed to load requests");
@@ -58,15 +52,15 @@ const Requests = () => {
       const res = await api.get("/admin/managers/workload");
       setManagers(res.data);
     } catch {
-      toast.error("Failed to load manager workload");
+      toast.error("Failed to load managers");
     }
   };
 
-  /* ===================== USER ===================== */
+  /* USER*/
 
   const createRequest = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return toast.error("Title is required");
+    if (!title.trim()) return toast.error("Title required");
 
     try {
       setSubmitting(true);
@@ -82,26 +76,24 @@ const Requests = () => {
     }
   };
 
-  /* ===================== ADMIN ===================== */
+  /* ADMIN  */
 
-  const assignRequest = async (requestId, managerId) => {
+  const assignRequest = async (id, managerId) => {
     if (!managerId) return;
-
     try {
-      await api.put(`/requests/${requestId}/assign`, { managerId });
-      toast.success("Request assigned");
+      await api.put(`/requests/${id}/assign`, { managerId });
+      toast.success("Assigned");
       fetchRequests();
-      fetchManagers();
     } catch {
-      toast.error("Failed to assign request");
+      toast.error("Assignment failed");
     }
   };
 
-  /* ===================== MANAGER ===================== */
+  /*MANAGER */
 
   const updateStatus = async (id, status) => {
     if (status === "rejected" && !remark.trim()) {
-      return toast.error("Remark is required");
+      return toast.error("Remark required");
     }
 
     try {
@@ -111,262 +103,242 @@ const Requests = () => {
       setActiveRequest(null);
       fetchRequests();
     } catch {
-      toast.error("Failed to update request");
+      toast.error("Update failed");
     }
   };
 
   if (loading) {
-    return <p className="p-8 text-gray-500">Loading requests…</p>;
+    return (
+      <div className="flex-1 bg-neutral-950 p-8 text-neutral-400">
+        Loading…
+      </div>
+    );
   }
 
-  /* ===================== UI ===================== */
-
   return (
-    <div className="p-8 w-full bg-gray-50 min-h-screen space-y-10">
-      {/* Header */}
+    <main className="flex-1 bg-neutral-950 min-h-screen p-8 text-neutral-200 space-y-8">
+      {/* HEADER */}
       <div>
-        <h1 className="text-3xl font-semibold text-gray-900">Requests</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-xl font-semibold text-white">Requests</h1>
+        <p className="text-sm text-neutral-500">
           {role === "admin"
-            ? "View and assign all requests"
+            ? "Assign and oversee requests"
             : role === "manager"
             ? "Review assigned requests"
-            : "Create and track your requests"}
+            : "Track your submitted requests"}
         </p>
       </div>
 
       {/* USER CREATE */}
       {role === "user" && (
-        <div className="bg-white border rounded-xl p-6 max-w-xl shadow-sm">
-          <h3 className="text-lg font-semibold mb-4">New request</h3>
-          <form onSubmit={createRequest} className="space-y-4">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 max-w-xl">
+          <h3 className="text-sm font-semibold text-white mb-3">
+            New Request
+          </h3>
+          <form onSubmit={createRequest} className="space-y-3">
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Request title"
-              className="w-full border rounded-md px-3 py-2"
+              placeholder="Title"
+              className="w-full bg-neutral-950 border border-neutral-700 rounded px-3 py-2 text-sm"
             />
             <textarea
+              rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Description"
-              rows={3}
-              className="w-full border rounded-md px-3 py-2"
+              className="w-full bg-neutral-950 border border-neutral-700 rounded px-3 py-2 text-sm"
             />
             <button
               disabled={submitting}
-              className="bg-gray-900 text-white px-5 py-2 rounded-md"
+              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm"
             >
-              {submitting ? "Submitting…" : "Submit request"}
+              {submitting ? "Submitting…" : "Submit"}
             </button>
           </form>
         </div>
       )}
 
-      {/* TABLE */}
-      {requests.length === 0 ? (
-        <div className="bg-white border rounded-xl p-8 text-center text-gray-500">
-          No requests found
-        </div>
-      ) : (
-        <div className="bg-white border rounded-xl overflow-hidden">
+      {/* ADMIN TABLE */}
+      {role === "admin" ? (
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-100 text-gray-600">
+            <thead className="bg-neutral-800 text-neutral-400">
               <tr>
-                <th className="p-4 text-left">Title</th>
-                <th className="p-4 text-left">Status</th>
-                <th className="p-4 text-left">Created by</th>
-                <th className="p-4 text-left">Assigned to</th>
-                <th className="p-4 text-left">Details</th>
-                {role === "manager" && <th className="p-4">Action</th>}
+                <th className="p-3 text-left">Title</th>
+                <th className="p-3 text-left">Status</th>
+                <th className="p-3 text-left">Created By</th>
+                <th className="p-3 text-left">Assigned To</th>
+                <th className="p-3 text-right">History</th>
               </tr>
             </thead>
-
             <tbody>
               {requests.map((r) => (
-                <tr key={r._id} className="border-t align-top">
-                  <td className="p-4 font-medium">{r.title}</td>
-
-                  <td className="p-4">
+                <tr
+                  key={r._id}
+                  className="border-t border-neutral-800 hover:bg-neutral-800/40"
+                >
+                  <td className="p-3 font-medium text-white">
+                    {r.title}
+                  </td>
+                  <td className="p-3">
                     <StatusBadge status={r.status} />
                   </td>
-
-                  <td className="p-4">{r.createdBy?.name || "You"}</td>
-
-                  {/* ASSIGN */}
-                  <td className="p-4">
-                    {role === "admin" ? (
-                      <select
-                        value={r.assignedTo?._id || ""}
-                        disabled={r.status !== "pending"}
-                        onChange={(e) =>
-                          assignRequest(r._id, e.target.value)
-                        }
-                        className="border rounded px-2 py-1 text-sm w-full"
-                      >
-                        <option value="">Unassigned</option>
-                        {managers.map((m) => (
-                          <option
-                            key={m._id}
-                            value={m._id}
-                            className={
-                              m.pendingCount >= 5
-                                ? "text-red-600"
-                                : m.pendingCount >= 3
-                                ? "text-yellow-600"
-                                : ""
-                            }
-                          >
-                            {m.name} ({m.pendingCount} pending)
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      r.assignedTo?.name || "—"
-                    )}
+                  <td className="p-3 text-neutral-400">
+                    {r.createdBy?.name}
                   </td>
-
-                  {/* DETAILS */}
-                  <td className="p-4 text-gray-600">
-                    <div>{r.remark || "—"}</div>
+                  <td className="p-3">
+                    <select
+                      value={r.assignedTo?._id || ""}
+                      disabled={r.status !== "pending"}
+                      onChange={(e) =>
+                        assignRequest(r._id, e.target.value)
+                      }
+                      className="bg-neutral-950 border border-neutral-700 rounded px-2 py-1 text-xs w-full"
+                    >
+                      <option value="">Unassigned</option>
+                      {managers.map((m) => (
+                        <option key={m._id} value={m._id}>
+                          {m.name} · {m.pendingCount}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="p-3 text-right">
                     <button
                       onClick={() => {
-                        setSelectedRequest(r);
+                        setHistoryRequest(r);
                         setShowHistory(true);
                       }}
-                      className="mt-2 text-xs text-blue-600 underline"
+                      className="text-blue-400 text-xs hover:underline"
                     >
-                      View history
+                      View
                     </button>
                   </td>
-
-                  {/* MANAGER ACTION */}
-                  {role === "manager" && (
-                    <td className="p-4 space-y-2">
-                      {r.status === "pending" &&
-                        (activeRequest === r._id ? (
-                          <>
-                            <textarea
-                              value={remark}
-                              onChange={(e) =>
-                                setRemark(e.target.value)
-                              }
-                              placeholder="Add remark"
-                              className="w-full border rounded px-2 py-1"
-                            />
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() =>
-                                  updateStatus(r._id, "approved")
-                                }
-                                className="bg-green-600 text-white px-3 py-1 rounded text-xs"
-                              >
-                                Confirm Approve
-                              </button>
-                              <button
-                                onClick={() =>
-                                  updateStatus(r._id, "rejected")
-                                }
-                                className="bg-red-600 text-white px-3 py-1 rounded text-xs"
-                              >
-                                Confirm Reject
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() =>
-                                setActiveRequest(r._id)
-                              }
-                              className="bg-green-600 text-white px-3 py-1 rounded text-xs"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              onClick={() =>
-                                setActiveRequest(r._id)
-                              }
-                              className="bg-red-600 text-white px-3 py-1 rounded text-xs"
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        ))}
-                    </td>
-                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      ) : (
+        /* USER + MANAGER CARDS */
+        <div className="space-y-4">
+          {requests.map((r) => (
+            <div
+              key={r._id}
+              className="bg-neutral-900 border border-neutral-800 rounded-lg p-5 space-y-3"
+            >
+              <div className="flex justify-between">
+                <h3 className="text-white font-medium">{r.title}</h3>
+                <StatusBadge status={r.status} />
+              </div>
+
+              <p className="text-sm text-neutral-400">
+                {r.description}
+              </p>
+
+              <button
+                onClick={() => {
+                  setHistoryRequest(r);
+                  setShowHistory(true);
+                }}
+                className="text-xs text-blue-400 hover:underline"
+              >
+                View history
+              </button>
+
+              {role === "manager" && r.status === "pending" && (
+                <div className="space-y-2 border-t border-neutral-800 pt-3">
+                  {activeRequest === r._id && (
+                    <textarea
+                      value={remark}
+                      onChange={(e) => setRemark(e.target.value)}
+                      placeholder="Add remark"
+                      className="w-full bg-neutral-950 border border-neutral-700 rounded px-2 py-1 text-sm"
+                    />
+                  )}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() =>
+                        activeRequest === r._id
+                          ? updateStatus(r._id, "approved")
+                          : setActiveRequest(r._id)
+                      }
+                      className="bg-green-600 px-3 py-1 rounded text-xs"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() =>
+                        activeRequest === r._id
+                          ? updateStatus(r._id, "rejected")
+                          : setActiveRequest(r._id)
+                      }
+                      className="bg-red-600 px-3 py-1 rounded text-xs"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       )}
 
-      {/* ===================== AUDIT HISTORY MODAL ===================== */}
-      {showHistory && selectedRequest && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-lg rounded-xl shadow-lg">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="font-semibold text-lg">
+      {/* HISTORY MODAL */}
+      {showHistory && historyRequest && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-lg w-full max-w-lg">
+            <div className="flex justify-between px-5 py-3 border-b border-neutral-800">
+              <h3 className="text-white text-sm font-semibold">
                 Request History
               </h3>
               <button
                 onClick={() => setShowHistory(false)}
-                className="text-gray-500"
+                className="text-neutral-400 hover:text-white"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-4 max-h-96 overflow-y-auto space-y-4">
-              {selectedRequest.history.map((h, i) => (
-                <div key={i} className="border-l-2 pl-4 relative">
-                  <span className="absolute -left-1.5 top-1 w-3 h-3 bg-gray-400 rounded-full"></span>
-
-                  <p className="text-sm font-medium">
+            <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
+              {historyRequest.history.map((h, i) => (
+                <div
+                  key={i}
+                  className="border-l-2 border-neutral-700 pl-4"
+                >
+                  <p className="text-sm text-white">
                     {h.action.toUpperCase()}
                   </p>
-
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-neutral-400">
                     By {h.by?.name} ({h.by?.role})
                   </p>
-
                   {h.remark && (
-                    <p className="text-xs text-gray-700 mt-1">
+                    <p className="text-xs text-neutral-300 mt-1">
                       “{h.remark}”
                     </p>
                   )}
-
-                  <p className="text-[11px] text-gray-400 mt-1">
-                    {new Date(h.at).toLocaleString()}
-                  </p>
                 </div>
               ))}
-            </div>
-
-            <div className="p-4 border-t text-right">
-              <button
-                onClick={() => setShowHistory(false)}
-                className="px-4 py-2 bg-gray-900 text-white rounded-md text-sm"
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 };
 
+
+
 const StatusBadge = ({ status }) => {
-  const styles = {
-    pending: "bg-yellow-100 text-yellow-800",
-    approved: "bg-green-100 text-green-800",
-    rejected: "bg-red-100 text-red-800",
+  const map = {
+    pending: "bg-yellow-500/10 text-yellow-400",
+    approved: "bg-green-500/10 text-green-400",
+    rejected: "bg-red-500/10 text-red-400",
   };
   return (
-    <span className={`px-3 py-1 rounded-full text-xs ${styles[status]}`}>
+    <span className={`px-3 py-1 rounded-full text-xs ${map[status]}`}>
       {status}
     </span>
   );
