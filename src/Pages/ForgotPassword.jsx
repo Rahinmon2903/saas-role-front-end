@@ -13,9 +13,9 @@ const ForgotPassword = () => {
 
     try {
       await api.post("/auth/forgot-password", { email });
-      toast.success("If the email exists, a reset link has been sent");
+      toast.success("If the account exists, a reset link was sent");
     } catch {
-      toast.success("If the email exists, a reset link has been sent");
+      toast.success("If the account exists, a reset link was sent");
     } finally {
       setLoading(false);
     }
@@ -23,36 +23,41 @@ const ForgotPassword = () => {
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-xl p-8">
-        <h1 className="text-2xl font-semibold text-white mb-2">
+      <div className="w-full max-w-sm bg-neutral-900 border border-neutral-800 rounded-xl p-8">
+        <h1 className="text-lg font-semibold text-white mb-2">
           Reset password
         </h1>
-        <p className="text-sm text-neutral-500 mb-6">
-          A reset link will be sent if the email is registered
+        <p className="text-sm text-neutral-500 mb-8">
+          Enter your registered email
         </p>
 
-        <form onSubmit={submit} className="space-y-5">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Work email"
-            className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-md
-                       text-neutral-200 focus:ring-2 focus:ring-blue-600"
-          />
+        <form onSubmit={submit} className="space-y-6">
+          <div>
+            <label className="block text-xs font-medium text-neutral-400 mb-1">
+              Work email
+            </label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-md
+                         text-neutral-200 focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
 
           <button
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-medium"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md
+                       font-semibold tracking-wide transition disabled:opacity-60"
           >
             {loading ? "Sending…" : "Send reset link"}
           </button>
         </form>
 
-        <p className="mt-6 text-sm text-neutral-400">
+        <p className="mt-6 text-sm text-neutral-500 text-center">
           <Link to="/login" className="hover:underline">
-            Back to login
+            Back to authentication
           </Link>
         </p>
       </div>
@@ -61,3 +66,4 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
+
