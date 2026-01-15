@@ -1,7 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 import Navbar from "./Components/Navbar";
 import Sidebar from "./Components/Sidebar";
 import ProtectedRoute from "./Components/ProtectedRoute";
+import Loading from "./Components/Loading";
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -11,27 +15,35 @@ import Dashboard from "./Pages/Dashboard";
 import Requests from "./Pages/Requests";
 import AdminUsers from "./Pages/AdminUsers";
 
-const App = () => {
+
+
+const AppLayout = () => {
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+ 
+    setLoading(true);
+
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 400); 
+
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
   return (
-    <BrowserRouter>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-      />
+    <>
+      <Loading show={loading} />
 
       <Routes>
-        
         <Route path="/" element={<Navigate to="/register" />} />
 
-        {/* Public routes */}
+        {/* Public */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Protected routes */}
+        {/* Protected */}
         <Route
           path="/dashboard"
           element={
@@ -71,12 +83,25 @@ const App = () => {
           }
         />
 
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/register" />} />
       </Routes>
+    </>
+  );
+};
+
+
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar
+      />
+      <AppLayout />
     </BrowserRouter>
   );
 };
 
 export default App;
-
