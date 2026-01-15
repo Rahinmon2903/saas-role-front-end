@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import Navbar from "./Components/Navbar";
@@ -14,20 +20,19 @@ import Register from "./Pages/Register";
 import Dashboard from "./Pages/Dashboard";
 import Requests from "./Pages/Requests";
 import AdminUsers from "./Pages/AdminUsers";
-
-
+import ForgotPassword from "./Pages/ForgotPassword";
+import ResetPassword from "./Pages/ResetPassword";
 
 const AppLayout = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
- 
     setLoading(true);
 
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 400); 
+    }, 400);
 
     return () => clearTimeout(timer);
   }, [location.pathname]);
@@ -56,6 +61,8 @@ const AppLayout = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         <Route
           path="/requests"
@@ -89,16 +96,10 @@ const AppLayout = () => {
   );
 };
 
-
-
 const App = () => {
   return (
     <BrowserRouter>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar
-      />
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <AppLayout />
     </BrowserRouter>
   );
