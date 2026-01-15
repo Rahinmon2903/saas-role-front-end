@@ -19,10 +19,10 @@ const Register = () => {
 
     try {
       await api.post("/auth/register", { name, email, password });
-      toast.success("Request submitted");
+      toast.success("Access request submitted");
       navigate("/login");
     } catch {
-      setError("Request could not be processed");
+      setError("Unable to submit request");
     } finally {
       setLoading(false);
     }
@@ -30,11 +30,12 @@ const Register = () => {
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-neutral-950">
-      {/* LEFT PANEL */}
+      {/* LEFT — SYSTEM PANEL */}
       <div className="hidden lg:flex flex-col px-20 py-16 bg-neutral-900 border-r border-neutral-800">
-        <div className="space-y-12">
+        <div className="space-y-14">
+          {/* BRAND */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-md bg-blue-600/20 text-blue-400 font-bold flex items-center justify-center">
+            <div className="w-10 h-10 rounded-md bg-blue-600/20 text-blue-400 font-semibold flex items-center justify-center">
               RB
             </div>
             <div>
@@ -47,28 +48,30 @@ const Register = () => {
             </div>
           </div>
 
-          <div className="h-px bg-neutral-800 w-24" />
+          <div className="h-px bg-neutral-800 w-28" />
 
+          {/* TITLE */}
           <div>
             <h1 className="text-4xl font-semibold text-neutral-100 tracking-tight">
               Access Request
             </h1>
             <p className="mt-3 text-sm text-neutral-500 max-w-sm">
-              Approval required before access
+              Administrative approval required
             </p>
           </div>
         </div>
 
+        {/* FOOTER META */}
         <div className="mt-auto pt-8 border-t border-neutral-800 text-xs text-neutral-600">
-          Requests are audited and reviewed
+          Requests are logged · Reviewed by administrators
         </div>
       </div>
 
-      {/* RIGHT PANEL */}
+      {/* RIGHT — FORM */}
       <div className="flex items-center justify-center px-6">
         <div className="w-full max-w-sm">
           <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-8">
-            <h2 className="text-xl font-semibold text-white mb-6">
+            <h2 className="text-lg font-semibold text-white mb-8">
               Request access
             </h2>
 
@@ -78,47 +81,60 @@ const Register = () => {
               </div>
             )}
 
-            <form onSubmit={submit} className="space-y-5">
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Full name"
-                className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-md
-                           text-neutral-200 placeholder-neutral-500
-                           focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
+            <form onSubmit={submit} className="space-y-6">
+              {/* NAME */}
+              <div>
+                <label className="block text-xs font-medium text-neutral-400 mb-1">
+                  Full name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-md
+                             text-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
 
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Work email"
-                className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-md
-                           text-neutral-200 placeholder-neutral-500
-                           focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
+              {/* EMAIL */}
+              <div>
+                <label className="block text-xs font-medium text-neutral-400 mb-1">
+                  Work email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-md
+                             text-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
 
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-md
-                           text-neutral-200 placeholder-neutral-500
-                           focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
+              {/* PASSWORD */}
+              <div>
+                <label className="block text-xs font-medium text-neutral-400 mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-md
+                             text-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
 
+              {/* CTA */}
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md
-                           font-medium transition disabled:opacity-60"
+                           font-semibold tracking-wide transition disabled:opacity-60"
               >
-                {loading ? "Submitting…" : "Submit request"}
+                {loading ? "Submitting…" : "Submit for approval"}
               </button>
             </form>
           </div>
@@ -136,4 +152,5 @@ const Register = () => {
 };
 
 export default Register;
+
 
