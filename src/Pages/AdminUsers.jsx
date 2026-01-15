@@ -5,31 +5,43 @@ import { toast } from "react-toastify";
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => {
-    fetchUsers();
+    loadUsers();
   }, []);
 
-  const fetchUsers = async () => {
+  const loadUsers = async () => {
     try {
       const res = await api.get("/admin/users");
       setUsers(res.data);
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Failed to fetch users");
     } finally {
       setLoading(false);
     }
   };
 
-  const changeRole = async (id, role) => {
+  const changeRole = async (user, newRole) => {
+    if (user.role === newRole) return;
+
+    const confirm = window.confirm(
+      `Change role of "${user.name}" from ${user.role.toUpperCase()} to ${newRole.toUpperCase()}?`
+    );
+
+    if (!confirm) return;
+
     try {
-      await api.put(`/admin/users/${id}/role`, { role });
+      setUpdatingId(user._id);
+      await api.put(`/admin/users/${user._id}/role`, {
+        role: newRole,
+      });
       toast.success("Role updated");
-      fetchUsers();
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to change role");
+      loadUsers();
+    } catch {
+      toast.error("Failed to update role");
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -45,22 +57,22 @@ const AdminUsers = () => {
     <main className="flex-1 bg-neutral-950 min-h-screen p-8 text-neutral-200 space-y-6">
       {/* HEADER */}
       <div>
-        <h1 className="text-xl font-semibold text-white">
+        <h1 className="text-2xl font-semibold text-white tracking-tight">
           User Management
         </h1>
-        <p className="text-sm text-neutral-500">
-          Manage roles and access permissions
+        <p className="text-sm text-neutral-500 mt-1">
+          Control access levels and administrative privileges
         </p>
       </div>
 
       {/* TABLE */}
-      <div className="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-neutral-800 text-neutral-400">
+          <thead className="bg-neutral-800 text-neutral-400 uppercase text-[11px] tracking-wide">
             <tr>
               <th className="p-4 text-left">User</th>
               <th className="p-4 text-left">Email</th>
-              <th className="p-4 text-left">Current Role</th>
+              <th className="p-4 text-left">Role</th>
               <th className="p-4 text-left">Change Role</th>
             </tr>
           </thead>
@@ -75,6 +87,9 @@ const AdminUsers = () => {
                   <div className="font-medium text-white">
                     {u.name}
                   </div>
+                  <div className="text-xs text-neutral-500">
+                    User ID: {u._id.slice(-6)}
+                  </div>
                 </td>
 
                 <td className="p-4 text-neutral-400">
@@ -87,16 +102,23 @@ const AdminUsers = () => {
 
                 <td className="p-4">
                   <select
+                    disabled={updatingId === u._id}
                     value={u.role}
                     onChange={(e) =>
-                      changeRole(u._id, e.target.value)
+                      changeRole(u, e.target.value)
                     }
-                    className="bg-neutral-950 border border-neutral-700 rounded px-3 py-1 text-xs text-neutral-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="bg-neutral-950 border border-neutral-700 rounded-md px-3 py-1.5 text-xs text-neutral-200 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
                   >
                     <option value="user">User</option>
                     <option value="manager">Manager</option>
                     <option value="admin">Admin</option>
                   </select>
+
+                  {updatingId === u._id && (
+                    <p className="text-xs text-neutral-500 mt-1">
+                      Updating…
+                    </p>
+                  )}
                 </td>
               </tr>
             ))}
@@ -113,20 +135,20 @@ const AdminUsers = () => {
   );
 };
 
-/* ================= UI HELPERS ================= */
+
 
 const RoleBadge = ({ role }) => {
   const styles = {
-    admin: "bg-red-500/10 text-red-400",
-    manager: "bg-blue-500/10 text-blue-400",
-    user: "bg-green-500/10 text-green-400",
+    admin: "bg-red-500/15 text-red-400",
+    manager: "bg-blue-500/15 text-blue-400",
+    user: "bg-green-500/15 text-green-400",
   };
 
   return (
     <span
-      className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${styles[role]}`}
+      className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${styles[role]}`}
     >
-      {role}
+      {role.toUpperCase()}
     </span>
   );
 };
