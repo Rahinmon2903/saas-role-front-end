@@ -19,10 +19,10 @@ const Login = () => {
     try {
       const res = await api.post("/auth/login", { email, password });
       localStorage.setItem("auth", JSON.stringify(res.data));
-      toast.success("Welcome back");
+      toast.success("Authenticated");
       navigate("/dashboard");
-    } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials");
+    } catch {
+      setError("Invalid email or password");
     } finally {
       setLoading(false);
     }
@@ -30,80 +30,52 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-xl shadow-xl p-8">
-        {/* BRAND */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded-md bg-blue-600/15 text-blue-400 font-bold flex items-center justify-center">
-              RB
-            </div>
-            <span className="text-sm font-semibold text-neutral-200">
-              RBAC Control Panel
-            </span>
-          </div>
+      <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-xl p-8">
+        <h1 className="text-2xl font-semibold text-white mb-6">
+          Authenticate
+        </h1>
 
-          <h1 className="text-2xl font-semibold text-white">
-            Sign in
-          </h1>
-          <p className="text-sm text-neutral-400 mt-1">
-            Authorized personnel only
-          </p>
-        </div>
-
-        {/* ERROR */}
         {error && (
           <div className="mb-5 text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded">
             {error}
           </div>
         )}
 
-        {/* FORM */}
         <form onSubmit={submit} className="space-y-5">
-          <div>
-            <label className="block text-xs font-medium text-neutral-400 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-md
-                         text-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              placeholder="you@company.com"
-            />
-          </div>
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Work email"
+            className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-md
+                       text-neutral-200 focus:ring-2 focus:ring-blue-600"
+          />
 
-          <div>
-            <label className="block text-xs font-medium text-neutral-400 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-md
-                         text-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              placeholder="••••••••"
-            />
-          </div>
+          <input
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-md
+                       text-neutral-200 focus:ring-2 focus:ring-blue-600"
+          />
 
           <button
-            type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-md
-                       font-medium transition disabled:opacity-60"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-medium"
           >
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? "Verifying…" : "Authenticate"}
           </button>
         </form>
 
-        {/* FOOTER */}
-        <div className="mt-6 text-sm text-neutral-400">
-          Need access?{" "}
+        <div className="mt-6 flex justify-between text-sm text-neutral-400">
+          <Link to="/forgot-password" className="hover:underline">
+            Forgot password?
+          </Link>
           <Link to="/" className="text-blue-400 hover:underline">
-            Request an account
+            Request access
           </Link>
         </div>
       </div>
@@ -112,4 +84,5 @@ const Login = () => {
 };
 
 export default Login;
+
 
