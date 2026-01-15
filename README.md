@@ -1,16 +1,76 @@
-# React + Vite
+# RBAC Dashboard – Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, role-based access control (RBAC) dashboard built with React.  
+Designed for internal systems requiring secure authentication, approval workflows, and role-specific interfaces.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Live Demo
 
-## React Compiler
+🔗 https://saas-role-front-b3o9y2fsp-rahin-mon-ss-projects.vercel.app/
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🧩 Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Secure authentication (Login / Register / Forgot / Reset Password)
+- Role-based dashboards (Admin, Manager, User)
+- Request creation, assignment, approval & rejection
+- Real-time notifications
+- Audit history tracking
+- Protected routes
+- Clean, authoritative dark UI
+- Responsive layout
+
+---
+
+## 🛠 Tech Stack
+
+- React
+- React Router
+- Axios
+- Tailwind CSS
+- React Icons
+- React Toastify
+
+---
+
+## 📂 Project Structure
+
+```txt
+src/
+├── Components/
+│   ├── Navbar.jsx
+│   ├── Sidebar.jsx
+│   ├── ProtectedRoute.jsx
+│   └── Loader.jsx
+├── Pages/
+│   ├── Login.jsx
+│   ├── Register.jsx
+│   ├── Dashboard.jsx
+│   ├── Requests.jsx
+│   ├── AdminUsers.jsx
+│   ├── ForgotPassword.jsx
+│   └── ResetPassword.jsx
+├── services/
+│   └── api.js
+├── App.jsx
+└── main.jsx
+
+🧪 Run Locally
+git clone https://github.com/Rahinmon2903/saas-role-front-end
+cd rbac-dashboard-frontend
+npm install
+npm run dev
+
+🔐 Authentication Flow
+
+JWT stored securely in localStorage
+
+Axios interceptor attaches token
+
+Routes protected based on role
+
+📌 Notes
+
+This frontend is built to simulate real enterprise dashboards and focuses on clarity, hierarchy, and professional UX patterns.
