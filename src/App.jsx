@@ -42,10 +42,10 @@ const AppLayout = () => {
       <Loading show={loading} />
 
       <Routes>
-        <Route path="/" element={<Navigate to="/register" />} />
+        
 
         {/* Public */}
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Register />} />
         <Route path="/login" element={<Login />} />
 
         {/* Protected */}
