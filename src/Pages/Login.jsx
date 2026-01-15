@@ -46,20 +46,22 @@ const Login = () => {
             Sign in
           </h1>
           <p className="text-sm text-neutral-400 mt-1">
-            Restricted internal access
+            Authorized personnel only
           </p>
         </div>
 
+        {/* ERROR */}
         {error && (
           <div className="mb-5 text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded">
             {error}
           </div>
         )}
 
+        {/* FORM */}
         <form onSubmit={submit} className="space-y-5">
           <div>
             <label className="block text-xs font-medium text-neutral-400 mb-1">
-              Email address
+              Email
             </label>
             <input
               type="email"
@@ -68,7 +70,7 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-md
                          text-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              placeholder="your.work@email.com"
+              placeholder="you@company.com"
             />
           </div>
 
@@ -83,7 +85,7 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-md
                          text-neutral-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              placeholder="Enter your password"
+              placeholder="••••••••"
             />
           </div>
 
@@ -97,6 +99,7 @@ const Login = () => {
           </button>
         </form>
 
+        {/* FOOTER */}
         <div className="mt-6 text-sm text-neutral-400">
           Need access?{" "}
           <Link to="/" className="text-blue-400 hover:underline">
