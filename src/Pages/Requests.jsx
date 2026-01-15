@@ -19,6 +19,10 @@ const Requests = () => {
   const [remark, setRemark] = useState("");
   const [activeRequest, setActiveRequest] = useState(null);
 
+  // 🔍 Audit history modal
+  const [showHistory, setShowHistory] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+
   /* ===================== EFFECTS ===================== */
 
   useEffect(() => {
@@ -26,9 +30,7 @@ const Requests = () => {
   }, []);
 
   useEffect(() => {
-    if (role === "admin") {
-      fetchManagers();
-    }
+    if (role === "admin") fetchManagers();
   }, [role]);
 
   /* ===================== FETCH ===================== */
@@ -51,7 +53,6 @@ const Requests = () => {
     }
   };
 
-  // ✅ NEW: workload-aware managers fetch
   const fetchManagers = async () => {
     try {
       const res = await api.get("/admin/managers/workload");
@@ -90,7 +91,7 @@ const Requests = () => {
       await api.put(`/requests/${requestId}/assign`, { managerId });
       toast.success("Request assigned");
       fetchRequests();
-      fetchManagers(); // refresh workload
+      fetchManagers();
     } catch {
       toast.error("Failed to assign request");
     }
@@ -192,7 +193,7 @@ const Requests = () => {
 
                   <td className="p-4">{r.createdBy?.name || "You"}</td>
 
-                  {/* ADMIN ASSIGN WITH WORKLOAD */}
+                  {/* ASSIGN */}
                   <td className="p-4">
                     {role === "admin" ? (
                       <select
@@ -204,7 +205,6 @@ const Requests = () => {
                         className="border rounded px-2 py-1 text-sm w-full"
                       >
                         <option value="">Unassigned</option>
-
                         {managers.map((m) => (
                           <option
                             key={m._id}
@@ -226,26 +226,18 @@ const Requests = () => {
                     )}
                   </td>
 
-                  {/* DETAILS + HISTORY */}
+                  {/* DETAILS */}
                   <td className="p-4 text-gray-600">
                     <div>{r.remark || "—"}</div>
-
-                    {r.history?.length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {r.history.map((h, i) => (
-                          <div
-                            key={i}
-                            className="text-xs text-gray-500"
-                          >
-                            <span className="font-medium">
-                              {h.action.toUpperCase()}
-                            </span>{" "}
-                            by {h.by?.name || "System"}
-                            {h.remark && ` — ${h.remark}`}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <button
+                      onClick={() => {
+                        setSelectedRequest(r);
+                        setShowHistory(true);
+                      }}
+                      className="mt-2 text-xs text-blue-600 underline"
+                    >
+                      View history
+                    </button>
                   </td>
 
                   {/* MANAGER ACTION */}
@@ -309,6 +301,60 @@ const Requests = () => {
           </table>
         </div>
       )}
+
+      {/* ===================== AUDIT HISTORY MODAL ===================== */}
+      {showHistory && selectedRequest && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-lg rounded-xl shadow-lg">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="font-semibold text-lg">
+                Request History
+              </h3>
+              <button
+                onClick={() => setShowHistory(false)}
+                className="text-gray-500"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-4 max-h-96 overflow-y-auto space-y-4">
+              {selectedRequest.history.map((h, i) => (
+                <div key={i} className="border-l-2 pl-4 relative">
+                  <span className="absolute -left-1.5 top-1 w-3 h-3 bg-gray-400 rounded-full"></span>
+
+                  <p className="text-sm font-medium">
+                    {h.action.toUpperCase()}
+                  </p>
+
+                  <p className="text-xs text-gray-600">
+                    By {h.by?.name} ({h.by?.role})
+                  </p>
+
+                  {h.remark && (
+                    <p className="text-xs text-gray-700 mt-1">
+                      “{h.remark}”
+                    </p>
+                  )}
+
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {new Date(h.at).toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-4 border-t text-right">
+              <button
+                onClick={() => setShowHistory(false)}
+                className="px-4 py-2 bg-gray-900 text-white rounded-md text-sm"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -327,5 +373,6 @@ const StatusBadge = ({ status }) => {
 };
 
 export default Requests;
+
 
 

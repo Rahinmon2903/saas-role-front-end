@@ -1,55 +1,81 @@
-import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import {
+  FaTachometerAlt,
+  FaFileAlt,
+  FaUsers,
+} from "react-icons/fa";
 
 const Sidebar = () => {
   const auth = JSON.parse(localStorage.getItem("auth"));
   const role = auth?.user?.role;
   const location = useLocation();
 
-  const navItem = (to, label) => {
+  const Item = ({ to, label, Icon }) => {
     const active = location.pathname === to;
 
     return (
       <Link
         to={to}
-        className={`block px-4 py-2 rounded-lg text-sm font-medium transition
+        className={`flex items-center gap-3 px-4 py-2.5 text-sm
+          border-l-4 transition
           ${
             active
-              ? "bg-gray-900 text-white shadow-sm"
-              : "text-gray-700 hover:bg-gray-200"
+              ? "bg-neutral-800 border-blue-500 text-white font-semibold"
+              : "border-transparent text-neutral-400 hover:bg-neutral-800"
           }`}
       >
+        <Icon className="text-base" />
         {label}
       </Link>
     );
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r px-4 py-6">
-      {/* Brand */}
-      <div className="mb-10 px-2">
-        <h2 className="text-lg font-semibold text-gray-900">
-          RBAC System
-        </h2>
-        <p className="text-xs text-gray-500">
-          Internal dashboard
+    <aside className="w-64 min-h-screen bg-neutral-900 border-r border-neutral-800 flex flex-col">
+      {/* HEADER */}
+      <div className="px-5 py-4 border-b border-neutral-800">
+        <h1 className="text-sm font-semibold text-white uppercase tracking-wide">
+          RBAC SYSTEM
+        </h1>
+        <p className="text-xs text-neutral-500 mt-1">
+          Internal Control Panel
         </p>
       </div>
 
-      {/* Navigation */}
-      <nav className="space-y-2">
-        {navItem("/dashboard", "Dashboard")}
-        {navItem("/requests", "Requests")}
+      {/* NAV */}
+      <nav className="flex-1 py-4">
+        <Item
+          to="/dashboard"
+          label="Dashboard"
+          Icon={FaTachometerAlt}
+        />
+        <Item
+          to="/requests"
+          label="Requests"
+          Icon={FaFileAlt}
+        />
 
         {role === "admin" && (
           <>
-            <div className="pt-4 pb-1 px-2 text-xs uppercase tracking-wide text-gray-400">
-              Admin
+            <div className="mt-6 px-4 text-xs font-semibold uppercase text-neutral-500">
+              Administration
             </div>
-            {navItem("/admin/users", "User Management")}
+            <Item
+              to="/admin/users"
+              label="User Management"
+              Icon={FaUsers}
+            />
           </>
         )}
       </nav>
+
+      {/* FOOTER */}
+      <div className="px-5 py-3 border-t border-neutral-800 text-xs text-neutral-500">
+        Role:{" "}
+        <span className="font-semibold text-neutral-200">
+          {role}
+        </span>
+      </div>
     </aside>
   );
 };
