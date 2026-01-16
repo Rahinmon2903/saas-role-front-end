@@ -18,10 +18,13 @@ const Register = () => {
     setLoading(true);
 
     try {
+      // Create user and sending data to backend
       await api.post("/auth/register", { name, email, password });
+      // Success
       toast.success("Access request submitted");
       navigate("/login");
     } catch {
+      // Error
       setError("Unable to submit request");
     } finally {
       setLoading(false);
