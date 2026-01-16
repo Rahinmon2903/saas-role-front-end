@@ -18,6 +18,7 @@ const Dashboard = () => {
   const [adminStats, setAdminStats] = useState(null);
   //user Information
   const [userStats, setUserStats] = useState(null);
+  //manager Information
   const [managerStats, setManagerStats] = useState(null);
 
   useEffect(() => {
@@ -64,12 +65,15 @@ const Dashboard = () => {
 
   const loadManagerStats = async () => {
     try {
+      // Get manager requests
       const res = await api.get("/requests/assigned");
+      // Count
       const total = res.data.length;
+      //filtering only pending request
       const pending = res.data.filter(
         (r) => r.status === "pending"
       ).length;
-
+       //set manager stats
       setManagerStats({
         total,
         pending,
