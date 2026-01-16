@@ -15,10 +15,13 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
+      //  sending data to backend
       await api.post(`/auth/reset-password/${token}`, { password });
+      // Success
       toast.success("Password updated");
       navigate("/login");
     } catch (err) {
+      // Error
       toast.error(
         err.response?.data?.message || "Reset link expired or invalid"
       );
