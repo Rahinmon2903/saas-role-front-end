@@ -16,6 +16,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const [adminStats, setAdminStats] = useState(null);
+  //user Information
   const [userStats, setUserStats] = useState(null);
   const [managerStats, setManagerStats] = useState(null);
 
@@ -40,8 +41,11 @@ const Dashboard = () => {
 
   const loadUserStats = async () => {
     try {
+      // Get user requests
       const res = await api.get("/requests");
+      // Count
       const total = res.data.length;
+      //filtering only pending request
       const pending = res.data.filter(
         (r) => r.status === "pending"
       ).length;
