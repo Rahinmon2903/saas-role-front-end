@@ -12,9 +12,12 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
+      // For verifing email and sending data to backend
       await api.post("/auth/forgot-password", { email });
+      // Success
       toast.success("If the account exists, a reset link was sent");
     } catch {
+      // Error
       toast.success("If the account exists, a reset link was sent");
     } finally {
       setLoading(false);
