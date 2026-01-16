@@ -17,11 +17,15 @@ const Login = () => {
     setLoading(true);
 
     try {
+      // Verify user and sending data to backend
       const res = await api.post("/auth/login", { email, password });
+      //saving the response in local storage
       localStorage.setItem("auth", JSON.stringify(res.data));
+      // Success
       toast.success("Authenticated");
       navigate("/dashboard");
     } catch {
+      // Error
       setError("Invalid credentials");
     } finally {
       setLoading(false);
