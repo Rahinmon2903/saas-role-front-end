@@ -13,6 +13,7 @@ const AdminUsers = () => {
 
   const loadUsers = async () => {
     try {
+      // Get users
       const res = await api.get("/admin/users");
       setUsers(res.data);
     } catch {
@@ -23,24 +24,30 @@ const AdminUsers = () => {
   };
 
   const changeRole = async (user, newRole) => {
+    // Prevent role change because same role avoid unexpected execution
     if (user.role === newRole) return;
-
+    // Confirm role change
     const confirm = window.confirm(
       `Change role of "${user.name}" from ${user.role.toUpperCase()} to ${newRole.toUpperCase()}?`
     );
-
+    // Cancel role change
     if (!confirm) return;
 
     try {
+      // Update user role
       setUpdatingId(user._id);
+      //sending data to backend
       await api.put(`/admin/users/${user._id}/role`, {
         role: newRole,
       });
+      // Success
       toast.success("Role updated");
       loadUsers();
     } catch {
+      // Error
       toast.error("Failed to update role");
     } finally {
+      
       setUpdatingId(null);
     }
   };
