@@ -80,22 +80,20 @@ const Dashboard = () => {
 
   if (role === "admin" && adminStats) {
     // Pie Chart and uploading data from admin stats
-    const pieData = [
-      {
-        name: "Pending",
-        value: adminStats.totalPendingRequests,
-      },
-      {
-        name: "Approved",
-        value: adminStats.totalApprovedRequests,
-      },
-      {
-        name: "Rejected",
-        value: adminStats.totalRejectedRequests,
-      },
-    ];
-    //three data so we need three colors
-    const COLORS = ["#6B7280", "#16A34A", "#DC2626"];
+   const pieData = [
+  { name: "Open", value: adminStats.totalOpenRequests },
+  { name: "In Progress", value: adminStats.totalInProgressRequests },
+  { name: "Resolved", value: adminStats.totalResolvedRequests },
+  { name: "Rejected", value: adminStats.totalRejectedRequests },
+];
+
+    //four data so we need four colors
+   const COLORS = [
+  "#EAB308", // Open → yellow
+  "#3B82F6", // In Progress → blue
+  "#22C55E", // Resolved → green
+  "#EF4444", // Rejected → red
+];
 
     return (
       <main className="flex-1 bg-neutral-950 min-h-screen p-8 space-y-10 text-neutral-200">
