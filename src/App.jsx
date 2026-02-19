@@ -32,7 +32,7 @@ const AppLayout = () => {
 
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 400);
+    }, 250); // smoother feel
 
     return () => clearTimeout(timer);
   }, [location.pathname]);
@@ -42,13 +42,13 @@ const AppLayout = () => {
       <Loading show={loading} />
 
       <Routes>
-        
-
-        {/* Public */}
+        {/* ✅ Public Routes */}
         <Route path="/" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* Protected */}
+        {/* ✅ Protected Routes */}
         <Route
           path="/dashboard"
           element={
@@ -61,8 +61,6 @@ const AppLayout = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         <Route
           path="/requests"
@@ -90,19 +88,25 @@ const AppLayout = () => {
           }
         />
 
-        <Route path="*" element={<Navigate to="/register" />} />
+        {/* ✅ Fallback */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
   );
 };
 
-const App = () => {
-  return (
-    <BrowserRouter>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
-      <AppLayout />
-    </BrowserRouter>
-  );
-};
+const App = () => (
+  <BrowserRouter>
+    <AppLayout />
+
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar
+      theme="dark"
+    />
+  </BrowserRouter>
+);
 
 export default App;
+

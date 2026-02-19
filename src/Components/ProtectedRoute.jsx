@@ -1,18 +1,29 @@
-import React from 'react';
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 const ProtectedRoute = ({ children, roles }) => {
-  const auth = JSON.parse(localStorage.getItem("auth"));
+  const location = useLocation();
 
-  if (!auth) {
-    return <Navigate to="/login" />;
+  let auth = null;
+
+  try {
+    auth = JSON.parse(localStorage.getItem("auth"));
+  } catch {
+    auth = null;
   }
 
-  if (roles && !roles.includes(auth?.user?.role)) {
-    return <Navigate to="/unauthorized" />;
+  /* Not logged in */
+  if (!auth?.token || !auth?.user) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  /*  Role restriction */
+  if (roles && !roles.includes(auth.user.role)) {
+    return <Navigate to="/login" replace />;
+    // OR /unauthorized if you build that page
   }
 
   return children;
 };
 
 export default ProtectedRoute;
+
