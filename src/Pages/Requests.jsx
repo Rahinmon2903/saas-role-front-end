@@ -106,7 +106,7 @@ const Requests = () => {
       toast.error("Update failed");
     }
   };
-
+//step 9 getting priority color
   const priorityColors = {
     low: "bg-green-500/10 text-green-400",
     medium: "bg-yellow-500/10 text-yellow-400",
@@ -304,6 +304,7 @@ const Requests = () => {
 
                       <td className="p-4 space-y-2">
                         <div className="flex gap-2">
+                          {/*step 8 getting color based on priority*/}
                           <span className={`px-2 py-1 rounded text-xs font-semibold ${priorityColors[r.priority]}`}>
                             {r.priority}
                           </span>
@@ -325,6 +326,7 @@ const Requests = () => {
                         <select
                           value={r.assignedTo?._id || ""}
                           disabled={r.status !== "open"}
+                          //step 11 asiiging a request to a manager
                           onChange={(e) => assignRequest(r._id, e.target.value)}
                           className="bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-xs w-full focus:outline-none"
                         >
