@@ -30,7 +30,7 @@ const Requests = () => {
     fetchRequests();
     if (role === "admin") fetchManagers();
   }, []);
-
+//step 4 admin to get all request
   const fetchRequests = async () => {
     try {
       const res =
@@ -56,7 +56,7 @@ const Requests = () => {
       toast.error("Failed to load managers");
     }
   };
-
+//step 2 creating request and sending data to  backend
   const createRequest = async (e) => {
     e.preventDefault();
     if (!title.trim()) return toast.error("Title required");
@@ -113,7 +113,7 @@ const Requests = () => {
     high: "bg-orange-500/10 text-orange-400",
     critical: "bg-red-500/10 text-red-400",
   };
-
+//step 7 the function to get label and duer based on diff
   const getSLAStatus = (dueDate) => {
     const today = new Date();
     const due = new Date(dueDate);
@@ -161,6 +161,8 @@ const Requests = () => {
    return the statuses, which is the filtered item,
     which is true. So the false on everything removed
      and the true will be listed.*/
+
+     //step 5 after getting all request of users and manger filter them 
   const filteredRequests = requests.filter((r) => {
     if (statusFilter !== "all" && r.status !== statusFilter) return false;
     if (priorityFilter !== "all" && r.priority !== priorityFilter) return false;
@@ -237,7 +239,7 @@ const Requests = () => {
           <option value="other">Other</option>
         </select>
       </div>
-
+{/*This is the form for creating a new request. step 1*/}
       {role === "user" && (
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 max-w-xl">
           <h3 className="text-sm font-semibold text-white mb-3">New Request</h3>
@@ -268,7 +270,7 @@ const Requests = () => {
           </form>
         </div>
       )}
-
+{/* step 3 where admin see the created request and assign it to a manager*/}
       {role === "admin" ? (
         <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
@@ -286,6 +288,7 @@ const Requests = () => {
 
               <tbody>
                 {filteredRequests.map((r) => {
+                  //step 6 to get the label and color based on the due date
                   const sla = getSLAStatus(r.dueDate);
 
                   return (
