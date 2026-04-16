@@ -113,7 +113,7 @@ const Requests = () => {
     high: "bg-orange-500/10 text-orange-400",
     critical: "bg-red-500/10 text-red-400",
   };
-//step 7 the function to get label and duer based on diff
+//step 7 the function to get label and due based on diff
   const getSLAStatus = (dueDate) => {
     const today = new Date();
     const due = new Date(dueDate);
