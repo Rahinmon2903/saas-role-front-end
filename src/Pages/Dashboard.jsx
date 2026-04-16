@@ -43,7 +43,7 @@ const Dashboard = () => {
       // Count
       const total = res.data.length;
       //filtering only pending request
-      const pending = res.data.filter((r) => r.status === "pending").length;
+      const pending = res.data.filter((r) => r.status === "in_progress").length;
 
       setUserStats({
         total,
@@ -64,7 +64,7 @@ const Dashboard = () => {
       // Count
       const total = res.data.length;
       //filtering only pending request
-      const pending = res.data.filter((r) => r.status === "pending").length;
+      const pending = res.data.filter((r) => r.status === "in_progress").length;
       //set manager stats
       setManagerStats({
         total,
