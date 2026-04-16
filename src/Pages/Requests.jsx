@@ -79,7 +79,7 @@ const Requests = () => {
       setSubmitting(false);
     }
   };
-
+//step 12 function to assign a request to a manager
   const assignRequest = async (id, managerId) => {
     if (!managerId) return;
     try {
@@ -326,11 +326,12 @@ const Requests = () => {
                         <select
                           value={r.assignedTo?._id || ""}
                           disabled={r.status !== "open"}
-                          //step 11 asiiging a request to a manager
+                          //step 11 assigning a request to a manager
                           onChange={(e) => assignRequest(r._id, e.target.value)}
                           className="bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-xs w-full focus:outline-none"
                         >
                           <option value="">Unassigned</option>
+                          {/*if a role is admin fetchmanager automatically called step 13*/}
                           {managers.map((m) => (
                             <option key={m._id} value={m._id}>
                               {m.name} · {m.pendingCount}
@@ -390,6 +391,7 @@ const Requests = () => {
                   )}
                   <div className="flex gap-2">
                     <button
+                    //step 16 setting r.id to active request in initial click and on next clicking calling function
                       onClick={() =>
                         activeRequest === r._id
                           ? updateStatus(r._id, "resolved")
@@ -416,7 +418,7 @@ const Requests = () => {
           ))}
         </div>
       )}
-
+ {/*step 14 request history*/}
       {showHistory && historyRequest && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-neutral-900 border border-neutral-800 rounded-xl w-full max-w-lg">
@@ -429,6 +431,7 @@ const Requests = () => {
               {historyRequest.history.map((h, i) => (
                 <div key={i} className="flex gap-3">
                   <div className="flex flex-col items-center">
+                    {/*updating color based on action color step 15*/}
                     <div className={`w-2 h-2 rounded-full mt-1 ${actionColors[h.action] || "bg-neutral-500"}`} />
                     {i !== historyRequest.history.length - 1 && (
                       <div className="w-px flex-1 bg-neutral-700 mt-1" />
