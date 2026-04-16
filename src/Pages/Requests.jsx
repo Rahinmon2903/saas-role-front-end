@@ -153,7 +153,14 @@ const Requests = () => {
     high: requests.filter((r) => r.priority === "high").length,
     critical: requests.filter((r) => r.priority === "critical").length,
   };
-
+/*So now I understood, like if the status filter is not all,
+ and the particular status doesn't match as the status filter
+ , we return false, which means the particular status will be
+  removed from that request, right? The same thing happens
+   for priority filter, category filter, etc. So we only 
+   return the statuses, which is the filtered item,
+    which is true. So the false on everything removed
+     and the true will be listed.*/
   const filteredRequests = requests.filter((r) => {
     if (statusFilter !== "all" && r.status !== statusFilter) return false;
     if (priorityFilter !== "all" && r.priority !== priorityFilter) return false;
@@ -188,6 +195,13 @@ const Requests = () => {
 
       <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 max-w-xs">
         <p className="text-xs text-neutral-500 mb-3">Priority Distribution</p>
+        {/*Okay, then the object.entries, what this does, initially
+         we have an object, right? It converts into an array. So every
+          value should be stored inside an array, and while mapping, we
+           do the destructure initially. So in an object, there will be
+            key-value pairs, right? So we have a key and a value. 
+            A key will be that low, and value will be the number.
+             That's enough for entry.*/}
         {Object.entries(priorityStats).map(([key, value]) => (
           <div key={key} className="flex justify-between text-xs py-1">
             <span className="text-neutral-400 capitalize">{key}</span>
