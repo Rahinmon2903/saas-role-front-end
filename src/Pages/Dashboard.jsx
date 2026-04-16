@@ -81,8 +81,8 @@ const Dashboard = () => {
   if (role === "admin" && adminStats) {
     // Pie Chart and uploading data from admin stats
    const pieData = [
-  { name: "Open", value: adminStats.totalOpenRequests },
-  { name: "In Progress", value: adminStats.totalInProgressRequests },
+  { name: "Open", value: adminStats.totalOpen },
+  { name: "In Progress", value: adminStats.totalInProgress },
   { name: "Resolved", value: adminStats.totalResolvedRequests },
   { name: "Rejected", value: adminStats.totalRejectedRequests },
 ];
